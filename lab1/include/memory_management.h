@@ -32,7 +32,7 @@ class io_image {
 public:
 	int num_components;
 	io_comp* comps;
-
+	
 	io_image() : num_components(0), comps(nullptr) {}
 	~io_image() { delete[] comps; }
 };
