@@ -1,17 +1,17 @@
-#pragma once
+﻿#pragma once
 #include "io_bmp.h"
 
 class io_comp {
 public:
-	int width = 0;
-	int height = 0;
-	int stride = 0; // sample num for each row
+	int width;
+	int height;
+	int stride; // sample num for each row
 
 	// 1. buf points to the top left of image component, we can use negatie indices to access samples
 	// outside the original image boundaries
 	// 2. handle points to the start of alloacted memory block (extened version)
-	int* buf = nullptr;
-	int* handle = nullptr;
+	int* buf;
+	int* handle;
 
 public:
 	void allocate_with_border(int border = 16) { // 16 by default
@@ -23,17 +23,17 @@ public:
 		// no need to delete
 	}
 
-	io_comp() = default;
+	io_comp() : width(0), height(0), stride(0), buf(nullptr), handle(nullptr) {}
 	~io_comp() { delete[] handle; }
 };
 
 // image contains several color components
 class io_image {
 public:
-	int num_components = 0;
-	io_comp* comps = nullptr;
+	int num_components;
+	io_comp* comps;
 
-	io_image() = default;
+	io_image() : num_components(0), comps(nullptr) {}
 	~io_image() { delete[] comps; }
 };
 

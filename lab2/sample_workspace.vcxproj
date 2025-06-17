@@ -17,7 +17,6 @@
   <ItemGroup>
     <ClInclude Include="include\image_comps.h" />
     <ClInclude Include="include\io_bmp.h" />
-    <ClInclude Include="include\memory_management.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{76ADBBB9-895F-4E95-8326-17555D124F68}</ProjectGuid>

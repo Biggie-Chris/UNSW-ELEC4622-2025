@@ -26,9 +26,6 @@
     <ClInclude Include="include\io_bmp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\memory_management.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\image_comps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
