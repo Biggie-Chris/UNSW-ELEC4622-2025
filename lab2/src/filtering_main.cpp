@@ -73,6 +73,7 @@ void my_image_comp::perform_boundary_extension(BoundaryExtensionType type)
         break;
     }
     case BoundaryExtensionType::symmetric_extension: {
+        
         // First extend upwards
         float* first_line = buf;
         for (r = 1; r <= border; r++) {
@@ -81,23 +82,23 @@ void my_image_comp::perform_boundary_extension(BoundaryExtensionType type)
                 first_line[-r * stride + c] = src_line[c];
             }
         }
-
+        
         // Then extend downwards
         float* last_line = buf + (height - 1) * stride;
         for (r = 1; r <= border; r++) {
             float* src_line = last_line - r * stride;
-            for (c = 1; c < width; c++) {
+            for (c = 0; c < width; c++) {
                 last_line[r * stride + c] = src_line[c];
             }
         }
-
+        
         // Now extend all rows to the left and to the right
         float* left_edge = buf - border * stride;
         float* right_edge = left_edge + width - 1;
         for (r = height + 2 * border; r > 0; r--, left_edge += stride, right_edge += stride) {
-            for (c = 1; c < width; c++) {
-                left_edge[-c] = left_edge[c];
-                right_edge[c] = right_edge[-c];
+            for (c = 1; c <= border; c++) {
+                left_edge[-c] = left_edge[c - 1];
+                right_edge[c] = right_edge[-(c - 1)];
             }
         }
         break;
@@ -391,5 +392,5 @@ main(int argc, char* argv[])
 to do:
     1. fix the write_back process(clipping)---ok
     2. fix io_byte type casting---ok
-    3. add boundary extenison methods (usually 3 ways to do it) --- ;left for symmetric extension
+    3. add boundary extenison methods (usually 3 ways to do it) ---ok
 */
