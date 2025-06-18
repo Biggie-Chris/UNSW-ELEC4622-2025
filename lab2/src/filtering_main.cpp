@@ -6,9 +6,11 @@
 // Copyright 2007, David Taubman, The University of New South Wales (UNSW)
 /*****************************************************************************/
 #include <string>
+#include <iostream>
+#include <algorithm> // std::clamp(<v>, <lo>, <hi>)
 #include "io_bmp.h"
 #include "image_comps.h"
-#include <iostream>
+
 /* ========================================================================= */
 /*                 Implementation of `my_image_comp' functions               */
 /* ========================================================================= */
@@ -17,31 +19,61 @@
 /*                  my_image_comp::perform_boundary_extension                */
 /*****************************************************************************/
 
-void my_image_comp::perform_boundary_extension()
+void my_image_comp::perform_boundary_extension(BoundaryExtensionType type)
 {
     int r, c;
 
-    // First extend upwards
-    float* first_line = buf;
-    for (r = 1; r <= border; r++)
-        for (c = 0; c < width; c++)
-            first_line[-r * stride + c] = first_line[c];
+    switch (type) {
+    case BoundaryExtensionType::zero_padding: {
+        // First extend upwards
+        float* first_line = buf;
+        for (r = 1; r <= border; r++)
+            for (c = 0; c < width; c++)
+                first_line[-r * stride + c] = 0.0F;
 
-    // Now extend downwards
-    float* last_line = buf + (height - 1) * stride;
-    for (r = 1; r <= border; r++)
-        for (c = 0; c < width; c++)
-            last_line[r * stride + c] = last_line[c];
+        // Now extend downwards
+        float* last_line = buf + (height - 1) * stride;
+        for (r = 1; r <= border; r++)
+            for (c = 0; c < width; c++)
+                last_line[r * stride + c] = 0.0F;
 
-    // Now extend all rows to the left and to the right
-    float* left_edge = buf - border * stride;
-    float* right_edge = left_edge + width - 1;
-    for (r = height + 2 * border; r > 0; r--, left_edge += stride, right_edge += stride)
-        for (c = 1; c <= border; c++)
-        {
-            left_edge[-c] = left_edge[0];
-            right_edge[c] = right_edge[0];
-        }
+        // Now extend all rows to the left and to the right
+        float* left_edge = buf - border * stride;
+        float* right_edge = left_edge + width - 1;
+        for (r = height + 2 * border; r > 0; r--, left_edge += stride, right_edge += stride)
+            for (c = 1; c <= border; c++)
+            {
+                left_edge[-c] = 0.0F;
+                right_edge[c] = 0.0F;
+            }
+        break;
+    }
+    case BoundaryExtensionType::zero_order_hold: {
+        // First extend upwards
+        float* first_line = buf;
+        for (r = 1; r <= border; r++)
+            for (c = 0; c < width; c++)
+                first_line[-r * stride + c] = first_line[c];
+
+        // Now extend downwards
+        float* last_line = buf + (height - 1) * stride;
+        for (r = 1; r <= border; r++)
+            for (c = 0; c < width; c++)
+                last_line[r * stride + c] = last_line[c];
+
+        // Now extend all rows to the left and to the right
+        float* left_edge = buf - border * stride;
+        float* right_edge = left_edge + width - 1;
+        for (r = height + 2 * border; r > 0; r--, left_edge += stride, right_edge += stride)
+            for (c = 1; c <= border; c++)
+            {
+                left_edge[-c] = left_edge[0];
+                right_edge[c] = right_edge[0];
+            }
+        break;
+    }
+    };
+    
 }
 
 
@@ -81,12 +113,12 @@ void apply_filter(my_image_comp* in, my_image_comp* out, FilterType type)
                 mirror_psf[r * FILTER_DIM + c] = 1.0F / FILTER_TAPS; // F means float(4 bytes)
         break;
     case FilterType::h1: {
-        // Step 1: 初始化为 0
+        // Step 1: initialze to 0
         for (r = -FILTER_EXTENT; r <= FILTER_EXTENT; r++)
             for (c = -FILTER_EXTENT; c <= FILTER_EXTENT; c++)
                 mirror_psf[r * FILTER_DIM + c] = 0.0F;
 
-        // Step 2: 构造 h1
+        // Step 2: create a temp h1
         float h1_5x5[5][5] = {
             {0.0F, 1.0F / 3, 1.0F / 2, 1.0F / 3, 0.0F},
             {1.0F / 3, 1.0F / 2, 1.0F, 0.5F, 1.0F / 3},
@@ -95,17 +127,17 @@ void apply_filter(my_image_comp* in, my_image_comp* out, FilterType type)
             {0.0F, 1.0F / 3, 1.0F / 2, 1.0F / 3, 0.0F}
         };
 
-        // Step 3: 归一化 h1
+        // Step 3: normalize h1
         float sum = 0.0F;
         for (int i = 0; i < 5; ++i)
             for (int j = 0; j < 5; ++j)
                 sum += h1_5x5[i][j];
         float A = 1.0F / sum;
 
-        // Step 4: 填充 delta[n] 的中心点
-        mirror_psf[0] = 1.0F + alpha;  // mirror_psf[0] 即中心点 (0,0)
+        // Step 4: make the center of delta[n]
+        mirror_psf[0] = 1.0F + alpha;  // mirror_psf[0] is the center (0,0)
 
-        // Step 5: 构造 -α * h₁[n]
+        // Step 5: implement: -α * h₁[n] 
         int row_offset = -2;
         int col_offset = -2;
         for (int i = 0; i < 5; ++i)
@@ -275,7 +307,7 @@ main(int argc, char* argv[])
 
         // Process the image, all in floating point (easy)
         for (n = 0; n < num_comps; n++)
-            input_comps[n].perform_boundary_extension();
+            input_comps[n].perform_boundary_extension(BoundaryExtensionType::zero_padding);
         for (n = 0; n < num_comps; n++)
             apply_filter(input_comps + n, output_comps + n, FilterType::h1);
 
@@ -291,7 +323,9 @@ main(int argc, char* argv[])
                 io_byte* dst = line + n; // Points to first sample of component n
                 float* src = output_comps[n].buf + r * output_comps[n].stride;
                 for (int c = 0; c < width; c++, dst += num_comps)
-                    *dst = (io_byte)src[c]; // The cast to type "io_byte" is
+                    //*dst = (io_byte)src[c];
+                    *dst = static_cast<io_byte>(std::clamp(src[c] + 0.5F, 0.0F, 255.0F)); // src[i] + 0.5F : do rouding first
+                // The cast to type "io_byte" is
                 // required here, since floats cannot generally be
                 // converted to bytes without loss of information.  The
                 // compiler will warn you of this if you remove the cast.
@@ -324,7 +358,7 @@ main(int argc, char* argv[])
 
 /*
 to do:
-    1. fix the write_back process(clipping) 
-    2. fix io_byte type casting
+    1. fix the write_back process(clipping)---ok
+    2. fix io_byte type casting---ok
     3. add boundary extenison methods (usually 3 ways to do it)
 */

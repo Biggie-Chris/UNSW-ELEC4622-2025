@@ -9,6 +9,11 @@
 /*****************************************************************************/
 /* STRUCT                        my_image_comp                               */
 /*****************************************************************************/
+enum class BoundaryExtensionType {
+    zero_padding,
+    zero_order_hold,
+    symmetric_extension
+};
 
 struct my_image_comp {
     // Data members: (these occupy space in the structure's block of memory)
@@ -36,7 +41,7 @@ struct my_image_comp {
         handle = new float[stride * (height + 2 * border)];
         buf = handle + (border * stride) + border;
     }
-    void perform_boundary_extension();
+    void perform_boundary_extension(BoundaryExtensionType type);
     // This function is implemented in "filtering_main.cpp".
 };
 /* Notes:
