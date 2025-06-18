@@ -72,6 +72,36 @@ void my_image_comp::perform_boundary_extension(BoundaryExtensionType type)
             }
         break;
     }
+    case BoundaryExtensionType::symmetric_extension: {
+        // First extend upwards
+        float* first_line = buf;
+        for (r = 1; r <= border; r++) {
+            float* src_line = buf + r * stride;
+            for (c = 0; c < width; c++) {
+                first_line[-r * stride + c] = src_line[c];
+            }
+        }
+
+        // Then extend downwards
+        float* last_line = buf + (height - 1) * stride;
+        for (r = 1; r <= border; r++) {
+            float* src_line = last_line - r * stride;
+            for (c = 1; c < width; c++) {
+                last_line[r * stride + c] = src_line[c];
+            }
+        }
+
+        // Now extend all rows to the left and to the right
+        float* left_edge = buf - border * stride;
+        float* right_edge = left_edge + width - 1;
+        for (r = height + 2 * border; r > 0; r--, left_edge += stride, right_edge += stride) {
+            for (c = 1; c < width; c++) {
+                left_edge[-c] = left_edge[c];
+                right_edge[c] = right_edge[-c];
+            }
+        }
+        break;
+    }
     };
     
 }
@@ -240,9 +270,10 @@ void apply_filter(my_image_comp* in, my_image_comp* out, FilterType type)
             float* op = out->buf + r * out->stride + c;
             float sum = 0.0F;
             for (int y = -FILTER_EXTENT; y <= FILTER_EXTENT; y++)
-                for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; x++)
+                for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; x++) {
                     sum += ip[y * in->stride + x] * mirror_psf[y * FILTER_DIM + x];
-            *op = sum;
+                }
+            *op = std::clamp(sum, 0.0F, 255.0F);
         }
 }
 
@@ -307,7 +338,7 @@ main(int argc, char* argv[])
 
         // Process the image, all in floating point (easy)
         for (n = 0; n < num_comps; n++)
-            input_comps[n].perform_boundary_extension(BoundaryExtensionType::zero_padding);
+            input_comps[n].perform_boundary_extension(BoundaryExtensionType::symmetric_extension);
         for (n = 0; n < num_comps; n++)
             apply_filter(input_comps + n, output_comps + n, FilterType::h1);
 
@@ -324,7 +355,7 @@ main(int argc, char* argv[])
                 float* src = output_comps[n].buf + r * output_comps[n].stride;
                 for (int c = 0; c < width; c++, dst += num_comps)
                     //*dst = (io_byte)src[c];
-                    *dst = static_cast<io_byte>(std::clamp(src[c] + 0.5F, 0.0F, 255.0F)); // src[i] + 0.5F : do rouding first
+                    *dst = static_cast<io_byte>(src[c] + 0.5F); // src[i] + 0.5F : do rouding first
                 // The cast to type "io_byte" is
                 // required here, since floats cannot generally be
                 // converted to bytes without loss of information.  The
@@ -360,5 +391,5 @@ main(int argc, char* argv[])
 to do:
     1. fix the write_back process(clipping)---ok
     2. fix io_byte type casting---ok
-    3. add boundary extenison methods (usually 3 ways to do it)
+    3. add boundary extenison methods (usually 3 ways to do it) --- ;left for symmetric extension
 */
