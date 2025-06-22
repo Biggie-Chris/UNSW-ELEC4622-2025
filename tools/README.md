@@ -1,0 +1,19 @@
+# Notice
+## Install Media Interface Framework
+you might want to install it in default setting
+and after installation, set all .exe files inside /bin
+folder as global variables, that is putting them into the 
+Windows System 'PATH'.
+
+In this way, you can easily use all useful tools from MI(Media Interface).
+
+## MI Usages
+Here are some examples, just to name a few, in a command line Terminal(any locations):
+-open a GUI to view a bmp file:
+	'mi_viewer pens_rgb.bmp'
+-we can even use 'mi_pipe2' to combine MI modules as a workflow:
+	-read image: 'mi_pipe2-i pens_rgb.bmp :: view'
+	-crop an image: 
+		'mi_pipe2-i pens_rgb.bmp-o crop1.bmp-form bmp :: crop_n_shuffle-crop 0.2W 0.2H 0.25W 0.25H'
+	-view images as repeating video:
+		'mi_pipe2 :: read_file-f crop1.bmp crop2.bmp crop3.bmp crop4.bmp crop5.bmp :: frame_repeat :: view-play-rate 2'
