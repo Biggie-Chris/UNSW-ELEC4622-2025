@@ -10,4 +10,23 @@
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bi-linear_scaling_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io_bmp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aligned_image_comps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\aligned_image_comps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\io_bmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

@@ -10,20 +10,11 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\aligned_image_comps.cpp" />
-    <ClCompile Include="src\bi-linear_scaling_main.cpp" />
-    <ClCompile Include="src\io_bmp.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\aligned_image_comps.h" />
-    <ClInclude Include="include\io_bmp.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{76ADBBB9-895F-4E95-8326-17555D124F68}</ProjectGuid>
-    <RootNamespace>sample_workspace</RootNamespace>
+    <ProjectGuid>{5d88f8cd-a604-4852-9837-9dbc335efc72}</ProjectGuid>
+    <RootNamespace>task2</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>task1</ProjectName>
+    <ProjectName>task2</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -51,11 +42,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>.\bin\</OutDir>
+    <OutDir>.\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>.\bin\</OutDir>
+    <OutDir>.\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

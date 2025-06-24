@@ -5,7 +5,7 @@
 You might want to install it in default setting,  
 and after installation, set all `.exe` files inside `/bin`  
 folder as global variables — that is, putting them into the  
-Windows System `PATH`.
+Windows System `PATH`. 
 
 In this way, you can easily use all useful tools from **MI (Media Interface)**.
 
