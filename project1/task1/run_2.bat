@@ -1,5 +1,13 @@
 cd .\data
 ..\bin\task1.exe barbara.bmp out.bmp
-mi_viewer barbara.bmp
-mi_viewer out.bmp
-pause
+start  mi_viewer barbara.bmp
+start  mi_viewer out.bmp
+
+@echo Press Enter to close all viewer windows...
+@pause > nul
+
+:: close all mi_viewer process
+taskkill /IM mi_viewer.exe /F
+
+:: close current terminal
+exit
