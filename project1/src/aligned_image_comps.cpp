@@ -161,5 +161,10 @@ void my_aligned_image_comp::bilinear_interpolation(my_aligned_image_comp* in) {
             
         }
     }
-    std::cout << "bilinear done\n";
+    std::cout << "bilinear interpolation done\n";
+}
+
+// definition of sinc interpolation
+void my_aligned_image_comp::sinc_interpolation(my_aligned_image_comp* in) {
+
 }

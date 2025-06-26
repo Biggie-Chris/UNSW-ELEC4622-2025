@@ -10,11 +10,20 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\aligned_image_comps.cpp" />
+    <ClCompile Include="..\src\io_bmp.cpp" />
+    <ClCompile Include="src\bi-linear_interpo_main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\aligned_image_comps.h" />
+    <ClInclude Include="..\include\io_bmp.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5d88f8cd-a604-4852-9837-9dbc335efc72}</ProjectGuid>
-    <RootNamespace>task2</RootNamespace>
+    <ProjectGuid>{52b48a90-e402-4783-b7c8-057cb578fb13}</ProjectGuid>
+    <RootNamespace>task1</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>task2</ProjectName>
+    <ProjectName>project1_task1</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -42,11 +51,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>.\bin</OutDir>
+    <OutDir>$(SolutionDir)\bin</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\inlcude</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>.\bin</OutDir>
+    <OutDir>$(SolutionDir)\bin</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\inlcude</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

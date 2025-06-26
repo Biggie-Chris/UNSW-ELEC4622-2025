@@ -55,6 +55,8 @@ struct my_aligned_image_comp {
     void bilinear_interpolation(my_aligned_image_comp* in);
        /* Using bi-linear interpolation to fill the gaps(missing pixels) 
           after expansion. This function is implemented in aligned_image_comps.cpp. */
+    void sinc_interpolation(my_aligned_image_comp* in);
+        /* for project1 task2. */
   };
   /* Notes:
        This class is the same as `my_image_comp' from the "filtering_example"

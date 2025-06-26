@@ -1,6 +1,6 @@
 cd .\data
-..\bin\task1.exe barbara.bmp out.bmp
-start  mi_viewer barbara.bmp
+..\bin\project1_task1.exe pens_rgb.bmp out.bmp
+start  mi_viewer pens_rgb.bmp
 start  mi_viewer out.bmp
 
 @echo Press Enter to close all viewer windows...
