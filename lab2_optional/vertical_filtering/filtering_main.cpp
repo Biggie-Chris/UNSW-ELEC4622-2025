@@ -1,4 +1,4 @@
-/*****************************************************************************/
+﻿/*****************************************************************************/
 // File: vertical_filtering_main.cpp
 // Author: David Taubman
 // Last Revised: 13 August, 2007
@@ -66,37 +66,41 @@ void my_aligned_image_comp::filter(my_aligned_image_comp *in)
   assert(in->border >= FILTER_EXTENT);
   assert((this->height <= in->height) && (this->width <= in->width));
 
-  // store intermediate results
-  float* line_buffer = new float[width];
+  // Allocate line buffers
+  float* line_buffer = new float[width];        // Store vertical result for 1 row
+  float* line_buffer2 = new float[width];       // Store horizontal result
 
-  // Perform the vertical convolution
-  for (int r = 0; r < height; r++) {
-      for (int c = 0; c < width; c++) {
-          float* ip = in->buf + r * in->stride + c;
+  // Combined vertical + horizontal convolution row-by-row
+  for (int r = 0; r < height; ++r) {
+      // 1. Perform vertical convolution for this row
+      for (int c = 0; c < width; ++c) {
           float sum = 0.0F;
-          for (int y = -FILTER_EXTENT; y <= FILTER_EXTENT; y++) {
-              sum += ip[y * in->stride] * mirror_psf[y];
+          for (int y = -FILTER_EXTENT; y <= FILTER_EXTENT; ++y) {
+              float* ip = in->buf + (r + y) * in->stride + c;
+              sum += (*ip) * mirror_psf[y];
           }
-          line_buffer[c] = sum;
+          line_buffer[c] = sum;  // store vertically filtered value
       }
-      // write back buffer data to image
-      for (int c = 0; c < width; c++) {
-          buf[r * stride + c] = line_buffer[c];
+
+      // 2. Perform horizontal convolution on this line
+      for (int c = 0; c < width; ++c) {
+          float sum = 0.0F;
+          for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; ++x) {
+              int cc = c + x;                 /* ← 新增安全索引 */
+              if (cc < 0)        cc = 0;
+              else if (cc >= width) cc = width - 1;
+              sum += line_buffer[cc] * mirror_psf[x];
+          }
+          line_buffer2[c] = sum;  // store horizontally filtered value
+      }
+
+      // 3. Write final result to output image
+      for (int c = 0; c < width; ++c) {
+          buf[r * stride + c] = line_buffer2[c];
       }
   }
-
-  // Perform the horizontal convolution
-  for (int r = 0; r < height; r++) {
-      for (int c = 0; c < width; c++) {
-          float* ip = in->buf + r * in->stride + c;
-          float* op = buf + r * stride + c;
-          float sum = 0.0F;
-          for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; x++) {
-              sum += ip[x] * mirror_psf[x];
-          }
-          *op = sum;
-      }
-  }
+  delete[] line_buffer;
+  delete[] line_buffer2;
 }
 
 /* ========================================================================= */

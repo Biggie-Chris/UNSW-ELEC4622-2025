@@ -1,4 +1,4 @@
-/*****************************************************************************/
+﻿/*****************************************************************************/
 // File: vertical_filtering_main.cpp
 // Author: David Taubman
 // Last Revised: 13 August, 2007
@@ -11,16 +11,22 @@
 #include <iostream>
 #include <chrono>
 #include <algorithm> // std::clamp
+#include <string> // std::stoi
 /*****************************************************************************/
 /*                                    main                                   */
 /*****************************************************************************/
 int
   main(int argc, char *argv[])
 {
-  if (argc != 3)
-    {
-      fprintf(stderr,"Usage: %s <in bmp file> <out bmp file>\n",argv[0]);
-      return -1;
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s <in bmp file> <out bmp file> <filter extent: 0 ~ 15>\n", argv[0]);
+        return -1;
+    }
+
+    int H = std::stoi(argv[3]); 
+    if (H < 0 || H > 15) {
+        fprintf(stderr, "Error: filter extent H must be in range 0 ~ 15\n");
+        return -1;
     }
 
   //// begin timer
@@ -37,7 +43,7 @@ int
       my_aligned_image_comp *input_comps =
         new my_aligned_image_comp[num_comps];
       for (n=0; n < num_comps; n++)
-        input_comps[n].init(height,width,4); // Leave a border of 4
+        input_comps[n].init(height,width,H); // Leave a border of H (0~15)
       
       int r; // Declare row index
       io_byte *line = new io_byte[width*num_comps];
@@ -70,10 +76,10 @@ int
     
       // Process the image, all in floating point (easy)
       if (num_comps == 1) {
-          output_comps->bilinear_interpolation(input_comps); // grey image input
+          output_comps->sinc_interpolation(input_comps, H); // grey image input
       }
       else if (num_comps == 3) {
-          output_comps->bilinear_interpolation(input_comps + 1); // rgb image input
+          output_comps->sinc_interpolation(input_comps + 1, H); // rgb image input
       }
 
       io_byte* output_line = new io_byte[width * 3];
@@ -87,7 +93,8 @@ int
             io_byte *dst = output_line; 
             float *src = output_comps->buf + r * output_comps->stride;
             for (int c = 0; c < width * 3; c++, dst++) {
-                *dst = static_cast<io_byte>(std::clamp(src[c] + 0.5F, 0.0F, 255.0F)); // The cast to type "io_byte" is
+                *dst = static_cast<io_byte>(std::clamp(src[c] + 0.5F, 0.0F, 255.0F)); 
+                // The cast to type "io_byte" is
                 // required here, since floats cannot generally be
                 // converted to bytes without loss of information.  The
                 // compiler will warn you of this if you remove the cast.

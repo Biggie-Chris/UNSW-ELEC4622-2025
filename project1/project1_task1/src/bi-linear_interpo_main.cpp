@@ -60,7 +60,7 @@ int
 
       // boudary extension for input
       for (n = 0; n < num_comps; n++) {
-          input_comps[n].perform_boundary_extension();
+          input_comps[n].perform_boundary_extension(); // symmetric extension
       }
 
       // Allocate storage for the filtered output
