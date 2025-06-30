@@ -2,6 +2,7 @@
 #include <iostream>
 #include <emmintrin.h>
 #include <cmath>
+#include <algorithm>
 /* ========================================================================= */
 /*                 Implementation of `my_image_comp' functions               */
 /* ========================================================================= */
@@ -267,4 +268,109 @@ void my_aligned_image_comp::sinc_interpolation(my_aligned_image_comp* in, int H)
     delete[] line_buffer;
     delete[] line_buffer2;
     std::cout << "sinc interpolation done: 3x, H = " << H << "\n";
+}
+
+/*****************************************************************************/
+/*                  my_aligned_image_comp::differentiation                   */
+/*****************************************************************************/
+float* my_aligned_image_comp::differentiation(my_aligned_image_comp* in, float g, std::string mode) {
+    const int FILTER_EXTENT = 1;
+    const int FILTER_TAPS = (2 * FILTER_EXTENT + 1);
+
+    // Create the vertical filter PSF as a local array on the stack.
+    float filter_buf[FILTER_TAPS] = { -0.5F, 0.0F, 0.5F };
+    float* mirror_psf = filter_buf + FILTER_EXTENT; // `mirror_psf' points to the central tap in the filter
+
+    // Check for consistent dimensions
+    assert(in->border >= FILTER_EXTENT);
+    //assert((this->height <= in->height) && (this->width <= in->width));
+
+    // Allocate magnitute buffers and rgb buffer    
+    float* rgb_buffer = new float[height * width * 3];
+    float* magnitude = new float[height * width];
+
+    std::cout << "begin filtering...\n";
+    // Combined vertical + horizontal convolution row-by-row
+    for (int r = 0; r < height; ++r) {
+        // processing each pixel
+        for (int c = 0; c < width; ++c) {
+            float sum_fx = 0.0F;
+            float sum_fy = 0.0F;
+
+            // index helper
+            int base = (r * width + c) * 3;
+
+            // 1. vertical filtering
+            for (int y = -FILTER_EXTENT; y <= FILTER_EXTENT; ++y) {
+                float* ip = in->buf + (r + y) * in->stride + c;
+                sum_fy += (*ip) * mirror_psf[y];
+            }
+
+            // 2. horizontal filtering
+            for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; ++x) {
+                float* ip = in->buf + r * in->stride + (c + x);
+                sum_fx += (*ip) * mirror_psf[x];
+            }
+
+            // 3. calculate magnitute and angle terms
+            float m = sqrtf(sum_fy * sum_fy + sum_fx * sum_fx);
+            float theta = atan2(sum_fy, sum_fx);
+
+            // 4. calculat hue
+            float hue;
+            if (theta >= 0) { hue = 3.0F / pi * theta; }
+            else { hue = 3 / pi * (theta + 2 * pi); }
+
+            // 5. convert to RGB
+            float C = std::min(float(255), g * m);
+            float X = C * (1 - std::fabsf(fmodf(hue, 2.0F) - 1));
+
+            float R, G, B;
+            if (hue >= 0 && hue < 1) { R = C; G = X; B = 0.0F; }
+            else if (hue >= 1 && hue < 2) { R = X; G = C; B = 0.0F; }
+            else if (hue >= 2 && hue < 3) { R = 0.0F; G = C; B = X; }
+            else if (hue >= 3 && hue < 4) { R = 0.0F; G = X; B = C; }
+            else if (hue >= 4 && hue < 5) { R = X; G = 0.0F; B = C; }
+            else { R = C; G = 0.0F; B = X; }
+
+            // BMP file stores RGB values in B->G->R order
+            rgb_buffer[base + 0] = B;
+            rgb_buffer[base + 1] = G;
+            rgb_buffer[base + 2] = R;
+
+            magnitude[r * width + c] = m;
+        }
+    }
+
+    if (mode == "on") {
+        std::cout << "differentiation done: g = " << g << "\n";
+        delete[] magnitude;
+        return rgb_buffer;
+    }
+    else if (mode == "off") {
+        for (int r = 1; r < height - 1; ++r) {
+            for (int c = 1; c < width - 1; ++c) {
+                int idx = r * width + c;
+                float m = magnitude[idx];
+                float m_up = magnitude[(r - 1) * width + c];
+                float m_down = magnitude[(r + 1) * width + c];
+                float m_left = magnitude[r * width + (c - 1)];
+                float m_right = magnitude[r * width + (c + 1)];
+
+                if (!(m > m_up && m > m_down && m > m_left && m > m_right)) {
+                    int base = idx * 3;
+                    rgb_buffer[base + 0] = 0.0F;
+                    rgb_buffer[base + 1] = 0.0F;
+                    rgb_buffer[base + 2] = 0.0F;
+                }
+            }
+        }
+        std::cout << "differentiation done: g = " << g << "\n";
+        delete[] magnitude;
+        return rgb_buffer;
+    }
+    else {
+        std::cout << "Invalid mode type\n";
+        return nullptr;
+    }
 }

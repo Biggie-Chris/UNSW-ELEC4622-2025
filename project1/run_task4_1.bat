@@ -1,5 +1,5 @@
 cd .\data
-..\bin\project1_task2.exe pens_rgb.bmp out.bmp 15
+..\bin\project1_task3_n_task4.exe pens_rgb.bmp out.bmp 25 off
 start  mi_viewer pens_rgb.bmp
 start  mi_viewer out.bmp
 

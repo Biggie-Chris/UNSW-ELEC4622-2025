@@ -7,6 +7,7 @@
 /*****************************************************************************/
 
 #include <assert.h>
+#include <string>
 
 /*****************************************************************************/
 /* STRUCT                     my_aligned_image_comp                          */
@@ -57,6 +58,8 @@ struct my_aligned_image_comp {
           after expansion. This function is implemented in aligned_image_comps.cpp. */
     void sinc_interpolation(my_aligned_image_comp* in, int H); // H means the windowed sinc extent
         /* for project1 task2. */
+    float* differentiation(my_aligned_image_comp* in, float g, std::string mode); // g means output gain
+        /* for project1 task3 and task4. */
   };
   /* Notes:
        This class is the same as `my_image_comp' from the "filtering_example"
