@@ -1,0 +1,10 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(520,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  main.cpp
+  io_bmp.cpp
+  Generating Code...
+E:\OneDrive - UNSW\01 EE 8338\ELEC4622\2025 T2\04 Git_Repository\lab1\src\io_bmp.cpp(9,9): warning C4005: '_CRT_SECURE_NO_DEPRECATE': macro redefinition
+      E:\OneDrive - UNSW\01 EE 8338\ELEC4622\2025 T2\04 Git_Repository\lab1\src\io_bmp.cpp(9,9):
+      '_CRT_SECURE_NO_DEPRECATE' previously declared on the command line
+  
+  sample_workspace.vcxproj -> E:\OneDrive - UNSW\01 EE 8338\ELEC4622\2025 T2\04 Git_Repository\lab1\bin\lab1.exe
