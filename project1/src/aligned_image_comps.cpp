@@ -145,7 +145,7 @@ void my_aligned_image_comp::bilinear_interpolation(my_aligned_image_comp* in) {
 
     for (int y = 0; y < output_height; y++) {
         int y0 = y;
-        if (y > output_height - 2) { y = output_height - 2; }
+        if (y < output_height - 2) { y = output_height - 2; }
         float input_y = static_cast<float>(y) / scale; // scale promoted to float implicitly
         int n2 = static_cast<int>(input_y); // vertical index
         float sigma_2 = input_y - n2;
