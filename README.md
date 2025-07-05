@@ -1,6 +1,6 @@
 # ELEC4622 - Image Signal Processing Course Repository
 
-This repository contains all labs and projects for ELEC4622, a fourth-year UNSW Electrical Engineering course focused on image signal processing. All implementations are written in C/C++ with emphasis on practical image processing algorithms and optimization techniques.
+This repository contains all labs and projects for ELEC4622, a fourth-year UNSW Electrical Engineering course focused on image signal processing. All implementations are written in C/C++.
 
 ## 📚 Course Overview
 
