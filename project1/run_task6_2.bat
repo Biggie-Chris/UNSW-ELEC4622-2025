@@ -1,5 +1,5 @@
 cd .\data
-..\bin\project1_task6.exe barbara.bmp out.bmp 1 on
+..\bin\project1_task6.exe barbara.bmp out.bmp 1 off
 
 start  mi_viewer barbara.bmp
 start  mi_viewer out.bmp

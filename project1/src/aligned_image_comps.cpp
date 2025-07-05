@@ -466,7 +466,7 @@ float* my_aligned_image_comp::derivative_gaussian(my_aligned_image_comp* in, flo
             else { hue = 3.0F / pi * (theta + 2 * pi); }
 
             // 5. convert to RGB
-            float C = std::min(float(255), m);
+            float C = std::min(float(255), 5 * m);
             float X = C * (1 - std::fabsf(fmodf(hue, 2.0F) - 1));
 
             float R, G, B;
