@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\aligned_image_comps.cpp" />
     <ClCompile Include="..\src\io_bmp.cpp" />
-    <ClCompile Include="src\bi-linear_interpo_main.cpp" />
+    <ClCompile Include="src\DOG_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\aligned_image_comps.h" />

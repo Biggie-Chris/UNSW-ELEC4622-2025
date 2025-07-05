@@ -379,3 +379,157 @@ float* my_aligned_image_comp::differentiation(my_aligned_image_comp* in, float g
         return nullptr;
     }
 }
+
+/*****************************************************************************/
+/*                  my_aligned_image_comp::sinc_interpolation                */
+/*****************************************************************************/
+float* my_aligned_image_comp::derivative_gaussian(my_aligned_image_comp* in, float s, std::string mode) {
+    int s0 = static_cast<int>(s + 1.0F);
+    int FILTER_EXTENT = 3 * s0;
+    int FILTER_TAPS = (2 * FILTER_EXTENT + 1);
+
+    // Creat Gaussian PSF as an array on the heap
+    float* filter_buf_g = new float[FILTER_TAPS]; 
+    float* mirror_psf_g = filter_buf_g + FILTER_EXTENT; // `mirror_psf' points to the central tap in the filter
+    float gsum = 0.0F;
+    for (int i = -FILTER_EXTENT; i <= FILTER_EXTENT; ++i) {
+        mirror_psf_g[i] = 1.0F / (std::sqrtf(2 * pi) * s) * (std::expf(-(i * i) / (2 * s * s)));
+        gsum += mirror_psf_g[i];
+    }
+    for (int i = -FILTER_EXTENT; i <= FILTER_EXTENT; ++i) {
+        mirror_psf_g[i] = mirror_psf_g[i] / gsum; // normalization done 
+    }
+
+    // Creat Derivative Gaussian PSF as a array on the heap
+    float* filter_buf_dg = new float[FILTER_TAPS];
+    float* mirror_psf_dg = filter_buf_dg + FILTER_EXTENT; // `mirror_psf' points to the central tap in the filter
+    for (int i = -FILTER_EXTENT; i <= FILTER_EXTENT; ++i) {
+        mirror_psf_dg[i] = -i / (s * s) * (1.0F / (std::sqrtf(2 * pi) * s) * (std::expf(-(i * i) / (2 * s * s)))); // no need to normalize Derivateive Filter
+    }
+    
+    // ? is it a good tradeoff to replace stack allocation with heap allocation just to make the function parameter more flexible??
+    // todo: 1. convolution step by step 2. remember to delete two kernel arrys 3. the reset should be fine as to follow the differentiation method to do the Hue Color Space conversion.
+    // Check for consistent dimensions
+    assert(in->border >= FILTER_EXTENT);
+    //assert((this->height <= in->height) && (this->width <= in->width));
+    
+    // Allocate magnitute buffers and rgb buffer    
+    float* rgb_buffer = new float[height * width * 3];
+    float* magnitude = new float[height * width];
+
+    // ---------- 新增：横向临时缓冲 ----------
+    float* row_g = new float[height * width];  // I ⊗ g   (行)
+    float* row_dg = new float[height * width];  // I ⊗ g'  (行)
+    std::cout << "begin filtering...\n";
+    // 1. First do horizontal filtering
+    for (int r = 0; r < height; ++r) {
+        for (int c = 0; c < width; ++c) {
+            float acc_g = 0.0F;
+            float acc_dg = 0.0F;
+            for (int dx = -FILTER_EXTENT; dx <= FILTER_EXTENT; ++dx) {
+                float* ip = in->buf + r * in->stride + (c + dx);
+                float  val = *ip;
+                acc_g += val * mirror_psf_g[dx];
+                acc_dg += val * mirror_psf_dg[dx];
+            }
+            row_g[r * width + c] = acc_g;   // I ⊗ g
+            row_dg[r * width + c] = acc_dg;  // I ⊗ g'
+        }
+    }
+    
+    // 2. Then do vertical filtering
+    for (int r = 0; r < height; ++r)
+    {
+        for (int c = 0; c < width; ++c)
+        {
+            float sum_fx = 0.0F;   // Gx = g' ⊗ g
+            float sum_fy = 0.0F;   // Gy = g  ⊗ g'
+
+            for (int dy = -FILTER_EXTENT; dy <= FILTER_EXTENT; ++dy)
+            {
+                int rr = r + dy;
+                if (rr < 0)          rr = -rr - 1;            // 镜像边界
+                else if (rr >= height) rr = 2 * height - rr - 1;
+                float val_g = row_g[rr * width + c];   // 已做行 g
+                float val_dg = row_dg[rr * width + c];   // 已做行 g'
+
+                sum_fx += val_dg * mirror_psf_g[dy];    // g' (x) + g (y)
+                sum_fy += val_g * mirror_psf_dg[dy];    // g  (x) + g' (y)
+            }
+            // 3. calculate magnitute and angle terms
+            float m = sqrtf(sum_fy * sum_fy + sum_fx * sum_fx);
+            float theta = atan2(sum_fy, sum_fx);
+
+            // 4. calculat hue
+            float hue;
+            if (theta >= 0) { hue = 3.0F / pi * theta; }
+            else { hue = 3.0F / pi * (theta + 2 * pi); }
+
+            // 5. convert to RGB
+            float C = std::min(float(255), m);
+            float X = C * (1 - std::fabsf(fmodf(hue, 2.0F) - 1));
+
+            float R, G, B;
+            if (hue >= 0 && hue < 1) { R = C; G = X; B = 0.0F; }
+            else if (hue >= 1 && hue < 2) { R = X; G = C; B = 0.0F; }
+            else if (hue >= 2 && hue < 3) { R = 0.0F; G = C; B = X; }
+            else if (hue >= 3 && hue < 4) { R = 0.0F; G = X; B = C; }
+            else if (hue >= 4 && hue < 5) { R = X; G = 0.0F; B = C; }
+            else { R = C; G = 0.0F; B = X; }
+
+            int base = (r * width + c) * 3;
+            // BMP file stores RGB values in B->G->R order
+            rgb_buffer[base + 0] = B;
+            rgb_buffer[base + 1] = G;
+            rgb_buffer[base + 2] = R;
+
+            magnitude[r * width + c] = m;
+        }
+    }
+
+    if (mode == "on") {
+        std::cout << "Derivative Gaussian done: sigma = " << s << "\n";
+        delete[] magnitude;
+        delete[] filter_buf_g;
+        delete[] filter_buf_dg;
+        delete[] row_dg;
+        delete[] row_g;
+        return rgb_buffer;
+    }
+    else if (mode == "off") {
+        for (int r = 1; r < height - 1; ++r) {
+            for (int c = 1; c < width - 1; ++c) {
+                int idx = r * width + c;
+                float m = magnitude[idx];
+                float m_up = magnitude[(r - 1) * width + c];
+                float m_down = magnitude[(r + 1) * width + c];
+                float m_left = magnitude[r * width + (c - 1)];
+                float m_right = magnitude[r * width + (c + 1)];
+
+                if (!(m > m_up && m > m_down && m > m_left && m > m_right)) {
+                    int base = idx * 3;
+                    rgb_buffer[base + 0] = 0.0F;
+                    rgb_buffer[base + 1] = 0.0F;
+                    rgb_buffer[base + 2] = 0.0F;
+                }
+            }
+        }
+        std::cout << "Derivative Gaussian done: sigma = " << s << "\n";
+        delete[] magnitude;
+        delete[] row_dg;
+        delete[] filter_buf_g;
+        delete[] filter_buf_dg;
+        delete[] row_g;
+        return rgb_buffer;
+    }
+    else {
+        std::cout << "Invalid mode type\n";
+        delete[] magnitude;
+        delete[] row_dg;
+        delete[] row_g;
+        delete[] filter_buf_g;
+        delete[] filter_buf_dg;
+        delete[] rgb_buffer;
+        return nullptr;
+    }
+}

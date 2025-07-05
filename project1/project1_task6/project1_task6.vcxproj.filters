@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\bi-linear_interpo_main.cpp">
+    <ClCompile Include="src\DOG_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\aligned_image_comps.cpp">

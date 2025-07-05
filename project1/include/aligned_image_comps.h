@@ -60,6 +60,8 @@ struct my_aligned_image_comp {
         /* for project1 task2. */
     float* differentiation(my_aligned_image_comp* in, float g, std::string mode); // g means output gain
         /* for project1 task3 and task4. */
+    float* derivative_gaussian(my_aligned_image_comp* in, float s, std::string mode); // s means sigma in Gaussin FILTER
+        /* for project1 taks6. */
   };
   /* Notes:
        This class is the same as `my_image_comp' from the "filtering_example"
