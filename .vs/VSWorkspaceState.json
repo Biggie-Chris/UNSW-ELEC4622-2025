@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\project1",
+    "\\project1\\project1_task1",
+    "\\project1\\project1_task1\\src",
+    "\\project1\\project1_task2",
+    "\\project1\\project1_task2\\src",
+    "\\project1\\project1_task3",
+    "\\project1\\project1_task3\\src",
+    "\\project1\\project1_task6",
+    "\\project1\\project1_task6\\src"
+  ],
+  "SelectedNode": "\\project1\\project1_task2\\src\\sinc_interpolation_main.cpp",
+  "PreviewInSolutionExplorer": false
+}
