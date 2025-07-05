@@ -120,7 +120,7 @@ project1_task2.exe barbara.bmp output.bmp 10
 # Image differentiation
 project1_task3.exe barbara.bmp output.bmp 10 on
 
-# Difference of Gaussians
+# Derivative of Gaussians
 project1_task6.exe barbara.bmp output.bmp 2.0 on
 ```
 
