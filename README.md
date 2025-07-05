@@ -100,28 +100,28 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
 #### Lab 1 - Basic Image Processing
 ```bash
 # Brighten an image
-lab1.exe barbara1.bmp out1.bmp 1
+lab1.exe barbara.bmp out.bmp 1
 ```
 
 #### Lab 2 - Image Filtering
 ```bash
 # Apply mean filter
-lab2.exe barbara1.bmp out_h1.bmp mean_avg
+lab2.exe barbara.bmp out_h1.bmp mean_avg
 ```
 
 #### Project 1 - Advanced Processing
 ```bash
 # Bilinear interpolation (3x upscaling)
-project1_task1.exe input.bmp output.bmp
+project1_task1.exe barbara.bmp output.bmp
 
 # Sinc interpolation
-project1_task2.exe input.bmp output.bmp
+project1_task2.exe barbara.bmp output.bmp 10
 
 # Image differentiation
-project1_task3.exe input.bmp output.bmp
+project1_task3.exe barbara.bmp output.bmp 10 on
 
 # Difference of Gaussians
-project1_task6.exe input.bmp output.bmp 2.0 on
+project1_task6.exe barbara.bmp output.bmp 2.0 on
 ```
 
 ## 🎯 Key Algorithms Implemented
