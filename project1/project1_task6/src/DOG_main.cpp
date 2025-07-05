@@ -104,6 +104,7 @@ int
       delete[] input_comps;
       delete output_comps;
       delete[] output_line;
+      delete rgb_buf;
     }
   catch (int exc) {
       if (exc == IO_ERR_NO_FILE)
