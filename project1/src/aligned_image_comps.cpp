@@ -408,7 +408,6 @@ float* my_aligned_image_comp::derivative_gaussian(my_aligned_image_comp* in, flo
     }
     
     // ? is it a good tradeoff to replace stack allocation with heap allocation just to make the function parameter more flexible??
-    // todo: 1. convolution step by step 2. remember to delete two kernel arrys 3. the reset should be fine as to follow the differentiation method to do the Hue Color Space conversion.
     // Check for consistent dimensions
     assert(in->border >= FILTER_EXTENT);
     //assert((this->height <= in->height) && (this->width <= in->width));
@@ -417,9 +416,8 @@ float* my_aligned_image_comp::derivative_gaussian(my_aligned_image_comp* in, flo
     float* rgb_buffer = new float[height * width * 3];
     float* magnitude = new float[height * width];
 
-    // ---------- 新增：横向临时缓冲 ----------
-    float* row_g = new float[height * width];  // I ⊗ g   (行)
-    float* row_dg = new float[height * width];  // I ⊗ g'  (行)
+    float* row_g = new float[height * width];  // I ⊗ g   
+    float* row_dg = new float[height * width];  // I ⊗ g'  
     std::cout << "begin filtering...\n";
     // 1. First do horizontal filtering
     for (int r = 0; r < height; ++r) {
@@ -448,10 +446,10 @@ float* my_aligned_image_comp::derivative_gaussian(my_aligned_image_comp* in, flo
             for (int dy = -FILTER_EXTENT; dy <= FILTER_EXTENT; ++dy)
             {
                 int rr = r + dy;
-                if (rr < 0)          rr = -rr - 1;            // 镜像边界
+                if (rr < 0)          rr = -rr - 1;            
                 else if (rr >= height) rr = 2 * height - rr - 1;
-                float val_g = row_g[rr * width + c];   // 已做行 g
-                float val_dg = row_dg[rr * width + c];   // 已做行 g'
+                float val_g = row_g[rr * width + c];   
+                float val_dg = row_dg[rr * width + c];   
 
                 sum_fx += val_dg * mirror_psf_g[dy];    // g' (x) + g (y)
                 sum_fy += val_g * mirror_psf_dg[dy];    // g  (x) + g' (y)
