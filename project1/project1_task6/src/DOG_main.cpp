@@ -30,8 +30,8 @@ int
   int s0 = static_cast<int>(s + 1.0F);
   int border = 3 * s0;
 
-  //// begin timer
-  //auto start_time = std::chrono::high_resolution_clock::now();
+  // begin timer
+  auto start_time = std::chrono::high_resolution_clock::now();
   int err_code=0;
   try {
       // Read the input image
@@ -120,10 +120,10 @@ int
         fprintf(stderr,"Trying to access a file which is not open!(?)\n");
       return -1;
    }
-  //// end timer
-  //auto end_time = std::chrono::high_resolution_clock::now();
-  //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-  //std::cout << "Processing time is: " << duration << " ms" << std::endl;
+  // end timer
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+  std::cout << "Processing time is: " << duration << " ms" << std::endl;
 
   return 0;
 }
