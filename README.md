@@ -32,14 +32,14 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
   - `lab2/src/filtering_main.cpp` - Main filtering implementation
   - `lab2/include/image_comps.h` - Image component definitions
 
-### Lab 2 Optional: Advanced Filtering
+### Lab 2 Optional: Filtering with Performance Optimization
 - **Purpose**: Extended filtering examples and vectorized implementations
 - **Features**:
   - Vertical filtering optimization
   - Vectorized filtering using SIMD instructions
   - Performance comparison between different approaches
 
-## 📋 Project 1: Advanced Image Processing
+## 📋 Project 1: Resampling and Gradient Computation
 
 ### Task 1: Bilinear Interpolation
 - **Implementation**: `project1/project1_task1/src/bi-linear_interpo_main.cpp`
@@ -62,11 +62,11 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
   - Support for both horizontal and vertical differentiation
   - Configurable differentiation parameters
 
-### Task 6: Difference of Gaussians (DoG)
+### Task 6: Derivative of Gaussians (DoG)
 - **Implementation**: `project1/project1_task6/src/DOG_main.cpp`
 - **Features**:
   - Edge detection using DoG filter
-  - Configurable sigma parameters (1-5 range)
+  - Configurable sigma parameters (1-5 floating point range)
   - Optional edge enhancement mode
 
 ## 🛠️ Technical Features
@@ -87,7 +87,7 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
 
 ### Prerequisites
 - Visual Studio 2019 or later (Windows)
-- C++17 compatible compiler
+- MSVC C++17 or higher
 - Media Interface Framework (included in tools/)
 
 ### Building the Projects
