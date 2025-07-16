@@ -1,16 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\project1",
-    "\\project1\\project1_task1",
-    "\\project1\\project1_task1\\src",
-    "\\project1\\project1_task2",
-    "\\project1\\project1_task2\\src",
-    "\\project1\\project1_task3",
-    "\\project1\\project1_task3\\src",
-    "\\project1\\project1_task6",
-    "\\project1\\project1_task6\\src"
+    "\\lab3"
   ],
-  "SelectedNode": "\\README.md",
+  "SelectedNode": "\\lab3\\dft_example.sln",
   "PreviewInSolutionExplorer": false
 }

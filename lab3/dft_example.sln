@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dft_example", "dft_example.vcxproj", "{400C57F8-7B82-447F-AF49-5CA879A861B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{400C57F8-7B82-447F-AF49-5CA879A861B1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{400C57F8-7B82-447F-AF49-5CA879A861B1}.Debug|Win32.Build.0 = Debug|Win32
+		{400C57F8-7B82-447F-AF49-5CA879A861B1}.Release|Win32.ActiveCfg = Release|Win32
+		{400C57F8-7B82-447F-AF49-5CA879A861B1}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9E39FB6-EF5E-4F5E-9766-7C7798632357}
+	EndGlobalSection
+EndGlobal
