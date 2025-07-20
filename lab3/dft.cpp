@@ -22,14 +22,14 @@ void my_direct_dft::init(int N, bool is_forward)
   this->N = N;
   real_buf = new float[N];
   imag_buf = new float[N];
-  real_trig = new double[N];
+  real_trig = new double[N]; // Use `double` to load trigonometric tables
   imag_trig = new double[N];
   for (int n=0; n < N; n++)
     {
       real_trig[n] = cos(n * 2.0 * M_PI / N);
       imag_trig[n] = sin(n * 2.0 * M_PI / N);
       if (is_forward)
-        imag_trig[n] = -imag_trig[n];
+        imag_trig[n] = -imag_trig[n]; // If it's forward trasnform, `sin(x)` should be 
     }
 }
 

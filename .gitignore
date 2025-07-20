@@ -2,6 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+**/.vs
 /lab1/.vs
 /project1/.vs
 /lab3/.vs
