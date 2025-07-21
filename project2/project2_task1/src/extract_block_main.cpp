@@ -1,4 +1,7 @@
-
+/* File: extract_block_main.cpp
+*  Author: Chris 
+*  Date: 2025-07-21
+*/ 
 #include "io_bmp.h"
 #include "aligned_image_comps.h"
 #include <iostream>
@@ -77,7 +80,7 @@ int
       my_aligned_image_comp *output_comps = new my_aligned_image_comp;
       output_comps->init(N, N, 0); // only need one component for grey image output
     
-      // subtract the image of N*N size
+      // extract the image of N*N size
       for (n = 0; n < num_comps; n++) {
           for (r = 0; r < N; r++) {
               for (c = 0; c < N; c++) {
