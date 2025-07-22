@@ -39,6 +39,10 @@ class my_direct_dft {
          performed.  Successive samples in the `real' and `imag'
          arrays are separated by `stride'.  This allows for a variety of
          different buffer organizations. */
+    void perform_fft(float* real, float* imag, int stride);
+    /* This function is implemented in `dft.cpp` and should be only used when 
+        `N` is powers of 2.
+    */
   private: // Internal helper functions
     void cleanup()
       {

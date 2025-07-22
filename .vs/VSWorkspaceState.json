@@ -1,9 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\lab2",
+    "\\lab2\\src",
+    "\\lab2_optional",
+    "\\lab2_optional\\vertical_filtering",
     "\\lab3",
     "\\project2"
   ],
-  "SelectedNode": "\\project2\\project2.sln",
+  "SelectedNode": "\\lab2_optional\\vertical_filtering\\filtering_main.cpp",
   "PreviewInSolutionExplorer": false
 }
