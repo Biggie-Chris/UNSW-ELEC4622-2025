@@ -157,9 +157,9 @@ int main(int argc, char* argv[])
                 for (int i = 0; i < N * N; ++i)
                 {
                     float re = dft_real[i], im = dft_imag[i];
-                    tmp_buf[i] = (re * re + im * im) / (N * N);   // ¦£_p[k]
+                    tmp_buf[i] = (re * re + im * im) / (N * N);   
                 }
-                fftshift(patch_comp, tmp_buf, N);                // ¦£_p[k] -> patch_comp
+                fftshift(patch_comp, tmp_buf, N);                
                 for (int i = 0; i < N * N; ++i)
                     patch_comp.buf[i] = logf(1.f + patch_comp.buf[i]);
 
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
                     for (int c = 0; c < N; ++c)
                     {
                         int k2 = c - halfN, ak2 = std::abs(k2);
-                        float v = alpha * row[c];          // ¦Á¡¤¦£_p[k]
+                        float v = alpha * row[c];          
 
                         if (ak1 > N8 && ak1 <= N4 && ak2 > N8 && ak2 <= N4)
                         {
@@ -193,9 +193,13 @@ int main(int argc, char* argv[])
                         }
                     }
                 }
-                float R = cntR ? sumR / cntR : 0.f;
-                float G = cntG ? sumG / cntG : 0.f;
-                float B = cntB ? sumB / cntB : 0.f;
+                float R, G, B;
+                if (cntR > 0) { R = sumR / cntR; }
+                else { R = 0.F; }
+                if (cntG > 0) { G = sumG / cntG; }
+                else { G = 0.F; }
+                if (cntB > 0) { B = sumB / cntB; }
+                else { B = 0.F; }
 
                 //---------------------- (e) Wirte to ouput buffer -----------------------
                 out_comps[0].buf[rowP * out_comps[0].stride + colP] = R;

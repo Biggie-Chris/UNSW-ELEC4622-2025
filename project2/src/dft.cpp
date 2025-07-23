@@ -108,8 +108,8 @@ namespace
         {
             int idx = k * step;    // Current twiddle index
 
-            double wr = rt[idx];   // twiddle real part: cos(2¦Ðk/N)
-            double wi = it[idx];   // twiddle imag part: sin(2¦Ðk/N)
+            double wr = rt[idx];   // twiddle real part: cos
+            double wi = it[idx];   // twiddle imag part: sin
 
             // Complex multiplication: T = W_N^k * FFT_odd[k]
             double tr = odd_re[k] * wr - odd_im[k] * wi;

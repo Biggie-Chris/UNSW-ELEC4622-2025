@@ -217,19 +217,19 @@ int main(int argc, char* argv[])
                 int k2 = c - halfN;    
                 int ak2 = std::abs(k2);
 
-                const float val = alpha * row[c];  // ¦Á ¡¤ ¦£_p[k]
+                const float val = alpha * row[c];  // alpha * T_p[k]
 
-                // S_R : N/8 < |k1|,|k2| ¡Ü N/4
+                // S_R : N/8 < |k1|,|k2| <= N/4
                 if (ak1 > N8 && ak1 <= N4 &&
                     ak2 > N8 && ak2 <= N4) {
                     sum_R += val; ++cnt_R;
                 }
-                // S_G : N/4 < |k1|,|k2| ¡Ü N/2
+                // S_G : N/4 < |k1|,|k2| <= N/2
                 else if (ak1 > N4 && ak1 <= N2 &&
                     ak2 > N4 && ak2 <= N2) {
                     sum_G += val; ++cnt_G;
                 }
-                // S_B : N/16 < |k1|,|k2| ¡Ü N/8
+                // S_B : N/16 < |k1|,|k2| <= N/8
                 else if (ak1 > N16 && ak1 <= N8 &&
                     ak2 > N16 && ak2 <= N8) {
                     sum_B += val; ++cnt_B;
