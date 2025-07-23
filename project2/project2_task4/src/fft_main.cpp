@@ -20,15 +20,11 @@ inline float hann_window(int x, int N)
     return 0.5F * (1.0F - cosf(2.0F * pi * x / (N - 1)));
 }
 
-/*===========================================================================
- * 简单的二维 fftshift：把 (0,0) 频率移到中心。
- * dst 与 src 可以相同，也可以不同。
- *===========================================================================*/
 static void fftshift(my_aligned_image_comp& dst_comp, const float* src, int N)
 {
     const int half = N >> 1;
     float* dst_buf = dst_comp.buf;
-    const int stride = dst_comp.stride;     // 正确的行跨度
+    const int stride = dst_comp.stride;
 
     for (int r = 0; r < N; ++r)
     {
@@ -71,9 +67,7 @@ int main(int argc, char* argv[])
     int err_code = 0;
     try
     {
-        /*------------------------------------------------------------------*/
-        /*                读入原图到 input_comps                             */
-        /*------------------------------------------------------------------*/
+
         bmp_in in;
         if ((err_code = bmp_in__open(&in, argv[1])) != 0)
             throw err_code;
@@ -84,11 +78,11 @@ int main(int argc, char* argv[])
 
         my_aligned_image_comp* input_comps = new my_aligned_image_comp[num_comps];
         for (int n = 0; n < num_comps; ++n)
-            input_comps[n].init(height, width, N);  // 留 N 像素边界
+            input_comps[n].init(height, width, N);  // leaver a border of N
 
         io_byte* line = new io_byte[width * num_comps];
         for (int r = height - 1; r >= 0; --r)
-        {                                          // BMP 行从底向上
+        {                                          // BMP row order is bottom up
             if ((err_code = bmp_in__get_line(&in, line)) != 0)
                 throw err_code;
             for (int n = 0; n < num_comps; ++n)
@@ -102,7 +96,7 @@ int main(int argc, char* argv[])
         bmp_in__close(&in);
 
         /*------------------------------------------------------------------*/
-        /*                计算 p 点坐标并检查                               */
+        /*                Calculate the coordinates of `p`                  */
         /*------------------------------------------------------------------*/
         const int p1 = static_cast<int>(std::stof(argv[4]));
         const int p2 = static_cast<int>(std::stof(argv[5]));
@@ -113,16 +107,16 @@ int main(int argc, char* argv[])
         }
 
         /*------------------------------------------------------------------*/
-        /*                边界扩展                                           */
+        /*                Boudary Extension                                 */
         /*------------------------------------------------------------------*/
         for (int n = 0; n < num_comps; ++n)
-            input_comps[n].perform_boundary_extension();  // 对称扩展
+            input_comps[n].perform_boundary_extension();  // symmetric extension
 
         /*------------------------------------------------------------------*/
-        /*                提取 N×N 窗并做汉宁窗加权                          */
+        /*                Extract N×N and apply Hann-window                 */
         /*------------------------------------------------------------------*/
         my_aligned_image_comp* output_comp = new my_aligned_image_comp;
-        output_comp->init(N, N, 0);  // 仅需单通道
+        output_comp->init(N, N, 0);  // only need one 
 
         float sum = 0.0F;
         for (int r = 0; r < N; ++r)
@@ -152,11 +146,10 @@ int main(int argc, char* argv[])
         /*------------------------------------------------------------------*/
         /*                2-D DFT                                            */
         /*------------------------------------------------------------------*/
-
         float* dft_real = new float[N * N];
         float* dft_imag = new float[N * N];
 
-        /* 1. 拷贝空间域数据到 dft_real，dft_imag 置 0 */
+        /* 1. Copy imagedata to dft_real，dft_imag set to 0 */
         for (int r = 0; r < N; ++r)
         {
             const float* src_row = output_comp->buf + r * output_comp->stride;
@@ -171,25 +164,26 @@ int main(int argc, char* argv[])
 
         // begin timer
         auto start_time = std::chrono::high_resolution_clock::now();
-        /* 2. 行方向 FFT */
+
+        /* 2. Row DFT */
         my_direct_dft row_dft;
         row_dft.init(N, true);
         for (int r = 0; r < N; ++r)
             row_dft.perform_fft(dft_real + r * N, dft_imag + r * N, 1);
 
-        /* 3. 列方向 FFT */
+        /* 3. Col DFT */
         my_direct_dft col_dft;
         col_dft.init(N, true);
         for (int c = 0; c < N; ++c)
             col_dft.perform_fft(dft_real + c, dft_imag + c, N);
-        
+
         // end timer
         auto end_time = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         std::cout << "Processing time is: " << duration << " ms" << std::endl;
 
-        /* 4. 计算功率谱，并做 fftshift 与对数映射             */
-        float* temp_buf = new float[N * N];  // 临时功率谱
+        /* 4. Calculate Periodogram，and apply fftshift */
+        float* temp_buf = new float[N * N];
         for (int i = 0; i < N * N; ++i)
         {
             float re = dft_real[i];
@@ -201,8 +195,8 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < N * N; ++i)
             output_comp->buf[i] = logf(1.0F + output_comp->buf[i]);
-        
-        
+
+
         /*------------------------------------------------------------------*/
         /*                write_out bmp                                     */
         /*------------------------------------------------------------------*/
@@ -212,7 +206,7 @@ int main(int argc, char* argv[])
             throw err_code;
 
         for (int r = N - 1; r >= 0; --r)
-        {  // BMP 行从底向上
+        {  // BMP row is bottom up
             io_byte* dst = output_line;
             float* src = output_comp->buf + r * output_comp->stride;
             for (int c = 0; c < N; c++, dst++) {

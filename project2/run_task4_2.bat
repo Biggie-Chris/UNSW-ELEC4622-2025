@@ -1,6 +1,6 @@
 cd .\data
 
-@echo Running DFT program...
+@echo Running FFT program...
 ..\bin\project2_task4.exe barbara.bmp out2.bmp 512 0 0 20
 
 
