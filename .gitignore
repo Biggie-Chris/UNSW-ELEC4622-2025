@@ -4,6 +4,7 @@
 
 **/.vs
 **/Debug
+**/Release
 /lab1/.vs
 /project1/.vs
 /lab3/.vs
