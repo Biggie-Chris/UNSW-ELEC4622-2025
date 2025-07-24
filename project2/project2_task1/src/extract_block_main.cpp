@@ -84,7 +84,7 @@ int
       for (n = 0; n < num_comps; n++) {
           for (r = 0; r < N; r++) {
               for (c = 0; c < N; c++) {
-                  output_comps[n].buf[r * N + c] = input_comps[n].buf[(p2 + r) * input_comps->stride + (p1 + c)];
+                  output_comps[n].buf[r * N + c] = input_comps[n].buf[(p2 + r) * input_comps[n].stride + (p1 + c)];
               }
           }
       }

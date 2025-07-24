@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\project2\\project2_task1\\src\\extract_block_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:project2\\project2_task1\\src\\extract_block_main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\README.md||{24510B54-A648-4D69-A6C5-F68CBDF07546}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README.md||{24510B54-A648-4D69-A6C5-F68CBDF07546}"
     }
@@ -27,6 +31,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "extract_block_main.cpp",
+              "DocumentMoniker": "E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\project2\\project2_task1\\src\\extract_block_main.cpp",
+              "RelativeDocumentMoniker": "project2\\project2_task1\\src\\extract_block_main.cpp",
+              "ToolTip": "E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\project2\\project2_task1\\src\\extract_block_main.cpp",
+              "RelativeToolTip": "project2\\project2_task1\\src\\extract_block_main.cpp",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAWwFYAAABgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-24T05:59:04.349Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "README.md",
               "DocumentMoniker": "E:\\OneDrive - UNSW\\01 EE 8338\\ELEC4622\\2025 T2\\04 Git_Repository\\README.md",
               "RelativeDocumentMoniker": "README.md",
