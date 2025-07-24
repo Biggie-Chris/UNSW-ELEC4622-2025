@@ -38,6 +38,22 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
   - Vertical filtering optimization
   - Vectorized filtering using SIMD instructions
   - Performance comparison between different approaches
+- **Key Files**:
+  - `lab2_optional/filtering_example/filtering_main.cpp` - Basic filtering example
+  - `lab2_optional/vertical_filtering/filtering_main.cpp` - Optimized vertical filtering
+  - `lab2_optional/vertical_filtering/vector_filter.cpp` - SIMD implementations
+
+### Lab 3: DFT and Frequency Domain Processing
+- **Purpose**: Discrete Fourier Transform implementation and frequency domain filtering
+- **Features**:
+  - DFT/IDFT implementation for frequency analysis
+  - Frequency domain filtering techniques
+  - Spectral analysis and visualization
+- **Key Files**:
+  - `lab3/dft_main.cpp` - Main DFT processing logic
+  - `lab3/dft.cpp` - DFT algorithm implementation
+  - `lab3/dft.h` - DFT function declarations
+  - `lab3/image_comps.h` - Image component utilities
 
 ## 📋 Project 1: Resampling and Gradient Computation
 
@@ -68,14 +84,66 @@ ELEC4622 is an advanced course in image signal processing that covers fundamenta
   - Edge detection using DoG filter
   - Configurable sigma parameters (1-5 floating point range)
   - Optional edge enhancement mode
+  - RGB output for visualization
+
+## 📋 Project 2: Block Processing and Frequency Analysis
+
+### Task 1: Block Extraction
+- **Implementation**: `project2/project2_task1/src/extract_block_main.cpp`
+- **Features**:
+  - Extract NxN blocks from images at specified coordinates
+  - Support for even-sized blocks only
+  - Efficient memory management for block processing
+
+### Task 2: Hann Window Block Processing
+- **Implementation**: `project2/project2_task2/src/hann_block_main.cpp`
+- **Features**:
+  - Apply Hann window function to extracted blocks
+  - Block-based signal processing
+  - Visualization with proper offset for negative values
+
+### Task 3: DFT Block Processing
+- **Implementation**: `project2/project2_task3/src/dft_main.cpp`
+- **Features**:
+  - Discrete Fourier Transform on image blocks
+  - Frequency domain analysis of local image features
+  - Block-based spectral processing
+
+### Task 4: FFT Implementation
+- **Implementation**: `project2/project2_task4/src/fft_main.cpp`
+- **Features**:
+  - Fast Fourier Transform for efficient frequency analysis
+  - Optimized processing for large image blocks
+  - Real-time frequency domain operations
+
+### Task 5: RGB FFT Processing
+- **Implementation**: `project2/project2_task5/src/rgb_fft_main.cpp`
+- **Features**:
+  - FFT processing on RGB color channels
+  - Color-aware frequency domain filtering
+  - Multi-channel spectral analysis
+
+### Task 6: Texture Synthesis using FFT
+- **Implementation**: `project2/project2_task6/src/texture_fft_main.cpp`
+- **Features**:
+  - FFT-based texture analysis and synthesis
+  - Advanced texture generation algorithms
+  - Pattern recognition and reconstruction
 
 ## 🛠️ Technical Features
 
 ### Core Components
 - **Aligned Image Components**: Optimized memory layout for SIMD operations
+  - `project1/src/aligned_image_comps.cpp` - Project 1 aligned components
+  - `project2/src/aligned_image_comps.cpp` - Project 2 enhanced components
 - **BMP I/O Library**: Efficient reading and writing of BMP files
+  - `project1/src/io_bmp.cpp` - Core BMP I/O functionality
+  - `project2/src/io_bmp.cpp` - Enhanced BMP I/O with additional features
 - **Boundary Extension**: Multiple strategies for handling image boundaries
 - **Vectorized Operations**: SIMD-optimized filtering using SSE instructions
+- **DFT/FFT Support**: Frequency domain processing capabilities
+  - `lab3/dft.cpp` - Basic DFT implementation
+  - `project2/src/dft.cpp` - Advanced DFT for block processing
 
 ### Performance Optimizations
 - Memory-aligned data structures
@@ -109,6 +177,12 @@ lab1.exe barbara.bmp out.bmp 1
 lab2.exe barbara.bmp out_h1.bmp mean_avg
 ```
 
+#### Lab 3 - DFT Processing
+```bat
+# Apply DFT to an image
+lab3.exe bike_mono.bmp out.bmp
+```
+
 #### Project 1 - Advanced Processing
 ```bat
 # Bilinear interpolation (3x upscaling)
@@ -124,33 +198,40 @@ project1_task3.exe barbara.bmp output.bmp 10 on
 project1_task6.exe barbara.bmp output.bmp 2.0 on
 ```
 
-## 🎯 Key Algorithms Implemented
+#### Project 2 - Block Processing and FFT
+```bat
+# Extract NxN block at coordinates (p1, p2)
+project2_task1.exe barbara.bmp output.bmp 16 100 100
 
-1. **Image Interpolation**
-   - Bilinear interpolation for smooth upscaling
-   - Sinc interpolation for high-quality reconstruction
+# Apply Hann window to extracted block
+project2_task2.exe barbara.bmp output.bmp 16 100 100
 
-2. **Image Filtering**
-   - Mean filtering for noise reduction
-   - Unsharp masking for edge enhancement
-   - Custom convolution kernels
+# DFT on image blocks
+project2_task3.exe bike_mono.bmp output.bmp 16 100 100
 
-3. **Edge Detection**
-   - Difference of Gaussians (DoG)
-   - Gradient-based edge detection
-   - Configurable scale parameters
+# FFT processing
+project2_task4.exe bike_mono.bmp output.bmp 16 100 100
 
-4. **Optimization Techniques**
-   - SIMD vectorization using SSE instructions
-   - Memory-aligned data structures
-   - Efficient boundary handling
+# RGB FFT processing
+project2_task5.exe bike_mono.bmp output.bmp 16 100 100
+
+# Texture synthesis using FFT
+project2_task6.exe sanity.bmp output.bmp 32 100 100
+
+```
 
 ## 📁 Data Files
 
 The repository includes sample images for testing:
-- `barbara.bmp` - Standard test image
-- `pens_rgb.bmp` - Color test image
-- Various output files demonstrating algorithm results
+- **Lab 1 Data**: `lab1/data/`
+  - `barbara1.bmp`, `barbara2.bmp`, `barbara3.bmp` - Standard test images
+- **Lab 2 Data**: `lab2/data/`
+  - `barbara1.bmp` - Input test image
+  - `pens_rgb.bmp` - Color test image
+- **Lab 3 Data**: `lab3/data/`
+  - `bike_mono.bmp`, `pens_mono.bmp` - Monochrome test images
+  - `sanity.bmp` - Verification image
+- **Project Data**: Sample input and output files for all project tasks
 
 ## 🛠️ Tools
 
@@ -159,6 +240,9 @@ Located in `tools/` directory, provides:
 - `mi_viewer` - GUI for viewing BMP files
 - `mi_pipe2` - Command-line image processing pipeline
 - Various utility functions for image manipulation
+
+See `tools/README.md` for detailed installation instructions and more examples.
+
 
 ---
 
