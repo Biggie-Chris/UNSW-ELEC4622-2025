@@ -243,7 +243,7 @@ int
               // Step 1: Motion Estimation
               mvector vec = find_motion(&(mono[0]),&(mono[1]),
                                         r,c,block_width,block_height);
-              // Step 3: Motion Compensation
+              // Step 2: Motion Compensation
               motion_comp(&(mono[0]),&output,vec,
                           r,c,block_width,block_height);
               // Step 3: draw motion vector line on rgb_buf
