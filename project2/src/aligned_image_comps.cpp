@@ -251,11 +251,8 @@ void my_aligned_image_comp::sinc_interpolation(my_aligned_image_comp* in, int H)
             for (int x = -FILTER_EXTENT; x <= FILTER_EXTENT; x++) {
                 float w = hann_sinc(x - frac_u, H);
 
-                /* === 改动①：从垂直结果 op[] 读取，而非 ip[] === */
-                //int phase = x_out % scale;                  // 当前列在 3 个子像素中的相位 (0/1/2)
-                //int sx = (u0 + x) * scale + phase;       // 保持同相位
                 int sx = (u0 + x) * scale;
-                /* === 改动②：简单 clamp，防止 sx 越界 === */
+                // Simple boudary handling
                 if (sx < 0) { sx = 0; }
                 else if (sx >= output_width) { sx = output_width - 1; }
                 sum += w * op[y_out * output_stride + sx];

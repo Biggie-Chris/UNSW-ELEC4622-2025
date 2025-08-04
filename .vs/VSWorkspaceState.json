@@ -1,6 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\project2",
+    "\\project2\\project2_task1",
+    "\\project2\\project2_task1\\src",
+    "\\project2\\project2_task5",
+    "\\project2\\project2_task5\\src"
   ],
+  "SelectedNode": "\\project2\\project2_task5\\src\\rgb_fft_main.cpp",
   "PreviewInSolutionExplorer": false
 }
