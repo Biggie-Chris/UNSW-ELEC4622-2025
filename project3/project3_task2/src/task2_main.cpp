@@ -1,5 +1,5 @@
 /*****************************************************************************/
-// File: task1_main.cpp
+// File: task2_main.cpp
 // Author: Chris
 // Last Revised: 2025-08-05
 /*****************************************************************************/
@@ -7,51 +7,18 @@
 #include "io_bmp.h"
 #include "image_comps.h"
 #include "motion.h"
+#include "aligned_image_comps.h"
 #include <algorithm>
 #include <string>
 
+
 #define MAX_KEYPOINTS 10000
-/* ========================================================================= */
-/*                 Implementation of `my_image_comp' functions               */
-/* ========================================================================= */
-
-/*****************************************************************************/
-/*                  my_image_comp::perform_boundary_extension                */
-/*****************************************************************************/
-
-void my_image_comp::perform_boundary_extension()
-{
-  int r, c;
-
-  // First extend upwards
-  int *first_line = buf;
-  for (r=1; r <= border; r++)
-    for (c=0; c < width; c++)
-      first_line[-r*stride+c] = first_line[c];
-
-  // Now extend downwards
-  int *last_line = buf+(height-1)*stride;
-  for (r=1; r <= border; r++)
-    for (c=0; c < width; c++)
-      last_line[r*stride+c] = last_line[c];
-
-  // Now extend all rows to the left and to the right
-  int *left_edge = buf-border*stride;
-  int *right_edge = left_edge + width - 1;
-  for (r=height+2*border; r > 0; r--, left_edge+=stride, right_edge+=stride)
-    for (c=1; c <= border; c++)
-      {
-        left_edge[-c] = left_edge[0];
-        right_edge[c] = right_edge[0];
-      }
-}
-
 /*****************************************************************************/
 /* STATIC                         find_motion                                */
 /*****************************************************************************/
 
 static mvector
-  find_motion(my_image_comp *ref, my_image_comp *tgt,
+  find_motion(my_aligned_image_comp *ref, my_aligned_image_comp *tgt,
               int start_row, int start_col, int block_width, int block_height, int S)
   /* This function finds the motion vector which best describes the motion
      between the `ref' and `tgt' frames, over a specified block in the
@@ -75,8 +42,8 @@ static mvector
             ((ref_col+block_width) > ref->width))
           continue; // Translated block not containe within reference frame
         int r, c;
-        int *rp = ref->buf + ref_row*ref->stride + ref_col;
-        int *tp = tgt->buf + start_row*tgt->stride + start_col;
+        float *rp = ref->buf + ref_row*ref->stride + ref_col;
+        float *tp = tgt->buf + start_row*tgt->stride + start_col;
         for (sad=0, r=block_height; r > 0; r--,
              rp+=ref->stride, tp+=tgt->stride)
           for (c=0; c < block_width; c++)
@@ -99,7 +66,7 @@ static mvector
 /*****************************************************************************/
 
 static void
-  motion_comp(my_image_comp *ref, my_image_comp *tgt, mvector vec,
+  motion_comp(my_aligned_image_comp *ref, my_aligned_image_comp *tgt, mvector vec,
               int start_row, int start_col, int block_width, int block_height)
   /* This function transfers data from the `ref' frame to a block within the
      `tgt' frame, thereby realizing motion compensation.  The motion in
@@ -111,8 +78,8 @@ static void
   int r, c;
   int ref_row = start_row - vec.y;
   int ref_col = start_col - vec.x;
-  int *rp = ref->buf + ref_row*ref->stride + ref_col;
-  int *tp = tgt->buf + start_row*tgt->stride + start_col;
+  float *rp = ref->buf + ref_row*ref->stride + ref_col;
+  float *tp = tgt->buf + start_row*tgt->stride + start_col;
   for (r=block_height; r > 0; r--,
        rp+=ref->stride, tp+=tgt->stride)
     for (c=0; c < block_width; c++)
@@ -122,6 +89,28 @@ static void
 /* ========================================================================= */
 /*                              Global Functions                             */
 /* ========================================================================= */
+float get_bilinear_pixel(const my_aligned_image_comp* src, float x, float y) {
+    int x0 = (int)floor(x), x1 = x0 + 1;
+    int y0 = (int)floor(y), y1 = y0 + 1;
+
+    float dx = x - x0;
+    float dy = y - y0;
+
+    float* buf = src->buf;
+    int stride = src->stride;
+
+    float p00 = buf[y0 * stride + x0];
+    float p10 = buf[y0 * stride + x1];
+    float p01 = buf[y1 * stride + x0];
+    float p11 = buf[y1 * stride + x1];
+
+    float val = (1 - dx) * (1 - dy) * p00 +
+        dx * (1 - dy) * p10 +
+        (1 - dx) * dy * p01 +
+        dx * dy * p11;
+    return val;
+}
+
 
 /*****************************************************************************/
 /*                                    main                                   */
@@ -130,10 +119,10 @@ static void
 int
   main(int argc, char *argv[])
 {
-  if (argc != 6)
+  if (argc != 7)
     {
       fprintf(stderr,
-              "Usage: %s <bmp frame 1> <bmp frame 2> <block size> <search range> <keypoints spacing>\n", 
+              "Usage: %s <bmp frame 1> <bmp frame 2> <block size> <output bmp file> <search range> <keypoints spacing>\n", 
               argv[0]);
       return -1;
     }
@@ -160,9 +149,9 @@ int
           fprintf(stderr,"The two input frames have different dimensions.\n");
           return -1;
         }
-      my_image_comp mono[2];
-      mono[0].init(height,width,4); // Leave a border of 4 (in case needed)
-      mono[1].init(height,width,4); // Leave a border of 4 (in case needed)
+      my_aligned_image_comp mono[2];
+      mono[0].init(height,width,S); // Leave a border of 4 (in case needed)
+      mono[1].init(height,width,S); // Leave a border of 4 (in case needed)     
       
       int n, r, c;
       int num_comps = in[0].num_components;
@@ -175,16 +164,16 @@ int
               if ((err_code = bmp_in__get_line(&(in[n]),line)) != 0)
                 throw err_code;
               io_byte *src = line; // Points to first sample of component n
-              int *dst = mono[n].buf + r * mono[n].stride;
+              float *dst = mono[n].buf + r * mono[n].stride;
               for (c=0; c < width; c++, src+=num_comps)
                 dst[c] = *src;
             }
           bmp_in__close(&(in[n]));
         }
 
-      // Allocate storage for the motion compensated output
-      my_image_comp output;
-      output.init(height,width,0); // Don't need a border for output
+      
+      mono[0].perform_boundary_extension();
+      mono[1].perform_boundary_extension();
 
       // Step 1: Find defined keypoints and motion vectors
       mvector motion_vectors[MAX_KEYPOINTS];
@@ -219,42 +208,52 @@ int
 
       printf("Global motion vector = (%d, %d)\n", global_vec.x, global_vec.y);
 
-      //// Step 3: Do motion compensation
-      //motion_comp(&mono[0], &output, global_vec, 0, 0, width, height);
+      // Allocate output buffer
+      my_aligned_image_comp compensated;
+      compensated.init(height, width, 0);
 
-      //// Compute `MSE` between tgt_frame and compensated then print the value out
-      //double mse = 0.0;
-      //int total_pixels = height * width;
-      //double total_err = 0;
+      float vx = (float)global_vec.x;
+      float vy = (float)global_vec.y;
 
-      //for (r = 0; r < height; r++) {
-      //    int* ref_line = mono[1].buf + r * mono[1].stride;
-      //    int* comp_line = output.buf + r * output.stride;
+      for (int r = 0; r < height; r++) {
+          for (int c = 0; c < width; c++) {
+              float src_y = r - vy;
+              float src_x = c - vx;
+              compensated.buf[r * compensated.stride + c] =
+                  get_bilinear_pixel(&mono[0], src_x, src_y);
+          }
+      }
 
-      //    for (c = 0; c < width; c++) {
-      //        int diff = ref_line[c] - comp_line[c];
-      //        total_err += diff * diff;
-      //    }
-      //}
+      // Compute `MSE` between tgt_frame and compensated then print the value out
+      double total_err = 0.0;
+      for (int r = 0; r < height; r++) {
+          float* tgt_line = mono[1].buf + r * mono[1].stride;
+          float* comp_line = compensated.buf + r * compensated.stride;
 
-      //mse = static_cast<double>(total_err / total_pixels);
-      //printf("MSE between target frame and compensated frame is: %.2f\n", mse);
+          for (int c = 0; c < width; c++) {
+              float diff = tgt_line[c] - comp_line[c];
+              total_err += diff * diff;
+          }
+      }
+
+      double mse = total_err / (width * height);
+      printf("MSE between compensated frame and target frame: %.2f\n", mse);
 
 
       // Write the motion compensated image out
-      //bmp_out out;
-      //if ((err_code = bmp_out__open(&out,argv[3],width,height,1)) != 0)
-      //  throw err_code;
-      //for (r=height-1; r >= 0; r--)
-      //  { // "r" holds the true row index we are writing, since the image is
-      //    // written upside down in BMP files.
-      //    io_byte *dst = line; // Points to first sample of component n
-      //    int* src = output.buf + r * width; 
-      //    for (int c = 0; c < width; c++, dst++)
-      //        *dst = static_cast<io_byte>(std::clamp(src[c], 0, 255));
-      //    bmp_out__put_line(&out,line);
-      //  }
-      //bmp_out__close(&out);
+      bmp_out out;
+      if ((err_code = bmp_out__open(&out,argv[3],width,height,1)) != 0)
+        throw err_code;
+      for (r=height-1; r >= 0; r--)
+        { // "r" holds the true row index we are writing, since the image is
+          // written upside down in BMP files.
+          io_byte *dst = line; // Points to first sample of component n
+          float* src = compensated.buf + r * compensated.stride; 
+          for (int c = 0; c < width; c++, dst++)
+              *dst = static_cast<io_byte>(std::clamp(src[c] + 0.5f, 0.0f, 255.0f));
+          bmp_out__put_line(&out,line);
+        }
+      bmp_out__close(&out);
       delete[] line;
     }
   catch (int exc) {
