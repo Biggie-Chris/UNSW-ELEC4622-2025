@@ -15,13 +15,13 @@
 #include <algorithm>         
 
 
-#define MAX_KEYPOINTS 20000          /* 角点最大缓存 */
+#define MAX_KEYPOINTS 20000         
 
 
 struct KeyPoint { int r, c; float score; };
 
 /* ------------------------------------------------------------------------- */
-/*                    生成 3-tap 高斯核 (可调 σ)                              */
+/*                    Initialize Gaussian Kernel                             */
 /* ------------------------------------------------------------------------- */
 static void make_gaussian_kernel(float sigma, float G[3])
 { /* 离散样点位于  -1,0,+1 ；再归一化 */
@@ -34,14 +34,14 @@ static void make_gaussian_kernel(float sigma, float G[3])
 }
 
 /* ------------------------------------------------------------------------- */
-/*                  1-D separable 3-tap 高斯模糊  (in-place)                  */
+/*                              Apply Gaussian filter                        */
 /* ------------------------------------------------------------------------- */
 static void gaussian_blur(my_aligned_image_comp& img, const float G[3])
 {
     int W = img.width, H = img.height, S = img.stride;
     float* tmp = new float[W * H];
 
-    /* --- 横向 --- */
+    
     for (int r = 0; r < H; ++r)
         for (int c = 0; c < W; ++c)
         {
@@ -54,7 +54,7 @@ static void gaussian_blur(my_aligned_image_comp& img, const float G[3])
             tmp[r * W + c] = v;
         }
 
-    /* --- 纵向 --- */
+    
     for (int r = 0; r < H; ++r)
         for (int c = 0; c < W; ++c)
         {
@@ -70,7 +70,7 @@ static void gaussian_blur(my_aligned_image_comp& img, const float G[3])
 }
 
 /* ------------------------------------------------------------------------- */
-/*                在 (x,y) 浮点坐标取得双线性像素值                          */
+/*                Perform Bilinear at  (x,y)                                 */
 /* ------------------------------------------------------------------------- */
 static inline float get_bilinear_pixel(const my_aligned_image_comp* src,
     float x, float y)
@@ -97,9 +97,7 @@ static inline float get_bilinear_pixel(const my_aligned_image_comp* src,
         dx * dy * p11;
 }
 
-/* ------------------------------------------------------------------------- */
-/*                    Task 2 的 find_motion / motion_comp                    */
-/* ------------------------------------------------------------------------- */
+
 static mvector
 find_motion(my_aligned_image_comp* ref, my_aligned_image_comp* tgt,
     int start_row, int start_col,
@@ -114,7 +112,7 @@ find_motion(my_aligned_image_comp* ref, my_aligned_image_comp* tgt,
             int rr = start_row - vec.y;
             int cc = start_col - vec.x;
             if (rr < 0 || cc < 0 || (rr + blk_h) > ref->height || (cc + blk_w) > ref->width)
-                continue;                    /* 越界则跳过 */
+                continue;                    // Skip if out of Search Range
 
             float* rp = ref->buf + rr * ref->stride + cc;
             float* tp = tgt->buf + start_row * tgt->stride + start_col;
@@ -144,13 +142,13 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    /* ------------------ 解析命令行 ------------------ */
+    
     const char* fname_in0 = argv[1];
     const char* fname_in1 = argv[2];
     const char* fname_out = argv[3];
-    int   H = std::atoi(argv[4]);    /* 块半径          */
-    int   S = std::atoi(argv[5]);    /* 搜索半径        */
-    int   NK = std::atoi(argv[6]);    /* 角点上限        */
+    int   H = std::atoi(argv[4]);    // Block size
+    int   S = std::atoi(argv[5]);    // Search range
+    int   NK = std::atoi(argv[6]);   // Keypoints count 
     float sigma = (float)std::atof(argv[7]);
 
     if (H < 1 || S < 0 || NK < 1 || NK > MAX_KEYPOINTS)
@@ -164,7 +162,7 @@ int main(int argc, char* argv[])
 
     int err_code = 0;
     try {
-        /* --------------- 读两帧 BMP ----------------- */
+        /* --------------- Read in two BMP frames ----------------- */
         bmp_in in[2];
         if ((err_code = bmp_in__open(&in[0], fname_in0)) != 0) throw err_code;
         if ((err_code = bmp_in__open(&in[1], fname_in1)) != 0) throw err_code;
@@ -184,13 +182,13 @@ int main(int argc, char* argv[])
         int height = in[0].rows;
 
         my_aligned_image_comp mono[2];
-        mono[0].init(height, width, S);   /* 给足边界，便于搜索 */
+        mono[0].init(height, width, S);   
         mono[1].init(height, width, S);
 
         io_byte* line = new io_byte[width];
         for (int n = 0; n < 2; ++n)
         {
-            for (int r = height - 1; r >= 0; --r)          /* BMP 底->顶 */
+            for (int r = height - 1; r >= 0; --r)          
             {
                 if ((err_code = bmp_in__get_line(&in[n], line)) != 0) throw err_code;
                 float* dst = mono[n].buf + r * mono[n].stride;
@@ -202,13 +200,13 @@ int main(int argc, char* argv[])
         mono[1].perform_boundary_extension();
 
         /* =====================================================================
-         *                       Step 1 : Harris 角点检测                       *
+         *                       Step 1 : Harris Corner Deteciton               *
          * ===================================================================*/
         my_aligned_image_comp tgt_smooth;
         tgt_smooth.init(height, width, 0);
         std::memcpy(tgt_smooth.buf, mono[1].buf, sizeof(float) * height * width);
 
-        float G[3];              /* 3-tap 高斯核 */
+        float G[3];              /* 3-tap Gaussian kernel */
         make_gaussian_kernel(sigma, G);
         gaussian_blur(tgt_smooth, G);
 
@@ -224,11 +222,11 @@ int main(int argc, char* argv[])
                 float yp = tgt_smooth.buf[(r + 1 < height ? r + 1 : height - 1) * tgt_smooth.stride + c];
                 gx[r * width + c] = 0.5f * (xp - xm);
                 gy[r * width + c] = 0.5f * (yp - ym);
-                K[r * width + c] = 0.0f;     /* 清零 */
+                K[r * width + c] = 0.0f;     
             }
 
         const int win = 2 * H + 1;
-        int border = H + S;             /* 必须离边界 ≥H+S 像素 */
+        int border = H + S;             
         for (int r = border; r < height - border; ++r)
             for (int c = border; c < width - border; ++c)
             {
@@ -246,12 +244,12 @@ int main(int argc, char* argv[])
                 if (tr > 1e-6f)
                 {
                     float det = S11 * S22 - S12 * S12;
-                    K[r * width + c] = det / tr;          /* Harris 响应 */
+                    K[r * width + c] = det / tr;          /* Harris Response */
                 }
             }
 
-        /* -------------------- 取局部最大值 -------------------- */
-        KeyPoint* cand = new KeyPoint[width * height]; /* 最坏情况 */
+        /* -------------------- Find local Maxima -------------------- */
+        KeyPoint* cand = new KeyPoint[width * height]; 
         int tot = 0;
         for (int r = border; r < height - border; ++r)
             for (int c = border; c < width - border; ++c)
@@ -266,7 +264,7 @@ int main(int argc, char* argv[])
         if (tot == 0) { fprintf(stderr, "No corner found!\n"); return -1; }
         if (tot < NK) NK = tot;
 
-        /* ----------- 选得分最高的前 NK 个 (选择排序) ----------- */
+        /* ----------- Get higheset scores for Nk points ----------- */
         for (int i = 0; i < NK; ++i)
         {
             int best = i;
@@ -276,7 +274,7 @@ int main(int argc, char* argv[])
         }
 
         /* =====================================================================
-         *                       Step 2 : 每角点块匹配                          *
+         *                       Step 2 : Block Matching for each Keypoints     *
          * ===================================================================*/
         mvector* motion = new mvector[NK];
         for (int k = 0; k < NK; ++k)
@@ -287,7 +285,7 @@ int main(int argc, char* argv[])
                 y - H, x - H, blk_w, blk_h, S);
         }
 
-        /* ------------------ Step 3 : 求全局向量 ------------------ */
+        /* ------------------ Step 3 : Get Global Vector ------------------ */
         double sum_x = 0, sum_y = 0;
         for (int i = 0; i < NK; ++i) { sum_x += motion[i].x; sum_y += motion[i].y; }
         mvector gvec;
@@ -296,7 +294,7 @@ int main(int argc, char* argv[])
         printf("Global motion = (%d,%d)  |  corners used = %d\n", gvec.x, gvec.y, NK);
 
         /* =====================================================================
-         *               Step 4 : 全局平移补偿 + 计算 MSE                       *
+         *               Step 4 : Perform Global Motion Compensation            *
          * ===================================================================*/
         my_aligned_image_comp compensated;
         compensated.init(height, width, 0);
@@ -323,7 +321,7 @@ int main(int argc, char* argv[])
         double mse = mse_acc / (width * height);
         printf("Global-motion-compensated MSE = %.3f\n", mse);
 
-        /* ------------------ Step 5 : 写出补偿后帧 ------------------ */
+        /* ------------------ Step 5 : Write out bmp ------------------ */
         bmp_out out;
         if ((err_code = bmp_out__open(&out, fname_out, width, height, 1)) != 0)
             throw err_code;
